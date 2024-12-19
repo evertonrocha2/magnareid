@@ -3,6 +3,9 @@
 import * as React from "react"
 import { Minus, Plus } from "lucide-react"
 import { Bar, BarChart, ResponsiveContainer } from "recharts"
+import { useToast } from "@/hooks/use-toast" 
+import { ToastAction } from "@/components/ui/toast"
+
 
 import { Button } from "@/components/ui/button"
 import {
@@ -61,7 +64,9 @@ const data = [
 ]
 
 export default function DrawerCalories() {
+  const { toast } = useToast()
   const [goal, setGoal] = React.useState(350)
+  const [calories, setCalories] = React.useState(0)
 
   function onClick(adjustment: number) {
     const calculatedGoal = (Math.max(200, Math.min(1600, goal + adjustment)))
@@ -72,6 +77,27 @@ export default function DrawerCalories() {
   function saveDbValue(){
     saveCaloriesToDatabase(goal)
   }
+
+  React.useEffect(() => {
+    async function fetchCalories() {
+      try {
+        const response = await fetch("/api/get-calories", {
+          method: "GET",
+      });
+          if (!response.ok) {
+              throw new Error(`Error: ${response.statusText}`);
+          }
+          const data = await response.json();
+          setCalories(data.calories)
+          setGoal(data.calories)
+          return data.calories;
+      } catch (error) {
+          console.error("Failed to fetch CALORIES:", error);
+          return null;
+      }
+  }
+  fetchCalories()
+  }, []);
 
   return (
     <Drawer >
@@ -132,7 +158,22 @@ export default function DrawerCalories() {
             </div>
           </div>
           <DrawerFooter>
-            <Button onClick={saveDbValue}>Salvar</Button>
+          <Button
+              onClick={() => {
+                saveDbValue();
+                toast({
+                  title: "Calorias salvas com sucesso!",
+                  description: "Veja em sua dashboard e avalie!",
+                  action: (
+                    <ToastAction altText="Goto schedule to undo">
+                      Undo
+                    </ToastAction>
+                  ),
+                });
+              }}
+            >
+              Salvar
+            </Button>
             <DrawerClose asChild>
               <Button variant="outline">Cancelar</Button>
             </DrawerClose>

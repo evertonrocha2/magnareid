@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import ImcCalculator from "@/components/imc-calculator/imc-calculator";
+import ShowCalories from "@/components/show-calories/show-calories";
 
 export default async function Dashboard() {
   const session = await auth();
@@ -58,7 +59,7 @@ export default async function Dashboard() {
           </CardHeader>
           <CardContent>
             <h3 className="text-xl">Calorias diárias atuais</h3>
-            <p>1500 kcal/d</p>
+            <ShowCalories/>
           </CardContent>
         </Card>
         </div>
